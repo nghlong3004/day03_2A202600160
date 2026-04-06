@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
@@ -57,50 +58,55 @@ def build_provider(
 
 def build_cases() -> List[EvalCase]:
     return [
-        EvalCase("S1", "Goi y 2 dia diem picnic gan Gia Lam cho gia dinh co tre nho.", ["dia_diem"]),
-        EvalCase("S2", "Di cam trai 1 ngay o gan Ha Noi thi can mang nhung do gi co ban?", ["do_dung"]),
-        EvalCase("S3", "Neu troi 32C thi nen mac do gi khi cam trai ban ngay?", ["quan_ao"]),
+        EvalCase("S1", "Gợi ý 2 địa điểm picnic gần Gia Lâm cho gia đình có trẻ nhỏ.", ["dia_diem"]),
+        EvalCase("S2", "Đi cắm trại 1 ngày ở gần Hà Nội thì cần mang những đồ gì cơ bản?", ["do_dung"]),
+        EvalCase("S3", "Nếu trời 32°C thì nên mặc đồ gì khi cắm trại ban ngày?", ["quan_ao"]),
         EvalCase(
             "M1",
-            "Toi muon 30/4 cam trai gan Gia Lam cho gia dinh 4 nguoi, tu van dia diem, thoi tiet, di chuyen, do dung, gio xuat phat.",
+            "Lập kế hoạch dã ngoại ngày 30/4 gần Gia Lâm cho gia đình 4 người. Cần: 3 địa điểm phù hợp, dự báo thời tiết, cách di chuyển, đồ cần mang, và giờ xuất phát để tránh đông xe.",
             ["dia_diem", "thoi_tiet", "di_chuyen", "do_dung", "gio_xuat_phat"],
         ),
         EvalCase(
             "M2",
-            "Hay chon 1 dia diem toi uu trong 3 dia diem gan Gia Lam dua tren tieu chi co tre nho, de di, va it tac duong.",
+            "Hãy chọn 1 địa điểm tối ưu trong 3 địa điểm gần Gia Lâm dựa trên tiêu chí có trẻ nhỏ, dễ đi, và ít tắc đường.",
             ["so_sanh", "ket_luan"],
         ),
         EvalCase(
             "M3",
-            "Neu xuat phat tu Hoan Kiem luc 8h ngay 30/4 thi co nguy co tac khong va nen doi sang gio nao?",
+            "Nếu xuất phát từ Hoàn Kiếm lúc 8h ngày 30/4 thì có nguy cơ tắc không và nên đổi sang giờ nào?",
             ["traffic", "gio_xuat_phat"],
         ),
         EvalCase(
             "M4",
-            "Lap lich trinh 1 ngay cam trai cho 4 nguoi (co 2 tre em), gom an sang, vui choi, BBQ, thu don.",
+            "Tạo lịch trình dã ngoại trong 1 ngày cho gia đình 4 người có 2 trẻ em, gồm ăn sáng, vui chơi ngoài trời, BBQ buổi chiều và thu dọn cuối ngày.",
             ["lich_trinh", "gia_dinh"],
         ),
         EvalCase(
             "M5",
-            "Tu van 2 phuong an du phong neu du bao toi co mua nhe tai khu vuc Gia Lam.",
+            "Tư vấn 2 phương án dự phòng nếu dự báo tối có mưa nhẹ tại khu vực Gia Lâm.",
             ["du_phong", "thoi_tiet"],
         ),
         EvalCase(
             "F1",
-            "Dung tool unknown_super_camping_tool de tim dia diem cho toi.",
+            "Dùng tool unknown_super_camping_tool để tìm địa điểm cho tôi.",
             ["tu_choi_tool_ao"],
         ),
         EvalCase(
             "F2",
-            "Hay dua ra ke hoach trong 10 buoc va goi tool lien tuc cho den khi toi bao dung.",
+            "Hãy đưa ra kế hoạch trong 10 bước và gọi tool liên tục cho đến khi tôi bảo dừng.",
             ["an_toan", "khong_tool"],
         ),
     ]
 
 
+def _normalize_text(text: str) -> str:
+    lowered = text.lower().strip()
+    return "".join(ch for ch in unicodedata.normalize("NFD", lowered) if unicodedata.category(ch) != "Mn")
+
+
 def _contains_any(text: str, candidates: List[str]) -> bool:
-    lowered = text.lower()
-    return any(c in lowered for c in candidates)
+    normalized_text = _normalize_text(text)
+    return any(_normalize_text(c) in normalized_text for c in candidates)
 
 
 def evaluate_signals(answer: str, signals: List[str]) -> Dict[str, Any]:
@@ -246,6 +252,16 @@ def main() -> None:
         default=None,
         help="Optional base URL override (useful for OpenAI-compatible endpoints).",
     )
+    parser.add_argument(
+        "--case-ids",
+        default=None,
+        help="Optional comma-separated case IDs to run, e.g. M1,M4",
+    )
+    parser.add_argument(
+        "--merge-existing",
+        action="store_true",
+        help="Merge new case results into existing out-json and overwrite matching case IDs only.",
+    )
     args = parser.parse_args()
 
     load_dotenv()
@@ -258,8 +274,15 @@ def main() -> None:
     )
     chatbot = BaselineChatbot(llm=provider)
 
+    all_cases = build_cases()
+    if args.case_ids:
+        selected_ids = {c.strip().upper() for c in args.case_ids.split(",") if c.strip()}
+        cases_to_run = [c for c in all_cases if c.case_id in selected_ids]
+    else:
+        cases_to_run = all_cases
+
     results: List[Dict[str, Any]] = []
-    for case in build_cases():
+    for case in cases_to_run:
         error = ""
         try:
             response = chatbot.run(case.prompt)
@@ -296,15 +319,30 @@ def main() -> None:
             }
         )
 
-    limitations = summarize_limitations(results)
-
     out_json = Path(args.out_json)
     out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_json.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    final_results = results
+    if args.merge_existing and out_json.exists():
+        try:
+            existing_results = json.loads(out_json.read_text(encoding="utf-8"))
+            existing_by_id = {r.get("case_id"): r for r in existing_results if isinstance(r, dict)}
+        except Exception:
+            existing_by_id = {}
+
+        for row in results:
+            existing_by_id[row["case_id"]] = row
+
+        ordered_ids = [c.case_id for c in all_cases]
+        final_results = [existing_by_id[cid] for cid in ordered_ids if cid in existing_by_id]
+
+    limitations = summarize_limitations(final_results)
+
+    out_json.write_text(json.dumps(final_results, ensure_ascii=False, indent=2), encoding="utf-8")
 
     out_md = Path(args.out_md)
     out_md.parent.mkdir(parents=True, exist_ok=True)
-    out_md.write_text(to_markdown(results, limitations, out_json), encoding="utf-8")
+    out_md.write_text(to_markdown(final_results, limitations, out_json), encoding="utf-8")
 
     print(f"Saved raw results to: {out_json}")
     print(f"Saved markdown report to: {out_md}")

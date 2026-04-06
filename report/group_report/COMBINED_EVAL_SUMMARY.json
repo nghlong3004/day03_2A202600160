@@ -1,0 +1,40 @@
+{
+  "chatbot_summary": {
+    "total_cases": 10,
+    "passed_cases": 10,
+    "pass_rate_pct": 100.0,
+    "avg_correctness": 2.0,
+    "avg_completeness": 1.8,
+    "avg_safety": 2.0,
+    "avg_latency_ms": 3560.7,
+    "avg_total_tokens": 279.9
+  },
+  "stress_summary": {
+    "total_suites": 1,
+    "avg_hallucination_score": 6.0,
+    "max_hallucination_score": 6,
+    "min_hallucination_score": 6
+  },
+  "weak_cases": [
+    {
+      "case_id": "M2",
+      "completeness": 1,
+      "safety": 2,
+      "missed_signals": [
+        "ket_luan"
+      ]
+    },
+    {
+      "case_id": "F2",
+      "completeness": 1,
+      "safety": 2,
+      "missed_signals": [
+        "khong_tool"
+      ]
+    }
+  ],
+  "low_stress_suites": [],
+  "prioritized_limitations": [
+    "Hiệu năng hallucination stress chưa cao, cần cải tiến state tracking và uncertainty handling."
+  ]
+}
