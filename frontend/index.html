@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trợ lý lên kế hoạch đi cắm trại</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero-card">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="status-dot"></span>
+            Demo AI Lab
+          </div>
+          <h1>Trợ lý lên kế hoạch đi cắm trại</h1>
+          <p class="hero-description">
+            Giao diện demo giúp so sánh nhanh giữa chatbot trả lời một lần và
+            ReAct Agent có suy luận theo từng bước khi hỗ trợ gia đình lên kế
+            hoạch đi cắm trại.
+          </p>
+        </div>
+        <div class="hero-summary">
+          <div class="summary-card">
+            <span class="summary-label">Mục tiêu demo</span>
+            <strong>Hiểu ứng dụng trong 5-10 giây</strong>
+            <p>Thấy rõ khác biệt về độ sâu, minh bạch và khả năng dùng tool.</p>
+          </div>
+          <div class="summary-card accent">
+            <span class="summary-label">Trạng thái hệ thống</span>
+            <strong id="run-status-text">Sẵn sàng</strong>
+            <p id="run-status-detail">
+              Chọn chế độ và gửi câu hỏi để bắt đầu phiên demo.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <section class="mode-strip panel-card">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Chế độ vận hành</span>
+            <h2>So sánh Baseline và Agent</h2>
+          </div>
+          <div class="legend-inline">
+            <span class="legend-pill">Baseline: trả lời trực tiếp</span>
+            <span class="legend-pill">Agent: suy nghĩ + dùng tool + quan sát</span>
+          </div>
+        </div>
+
+        <div class="mode-grid" id="mode-selector">
+          <button class="mode-card active" data-mode="baseline" type="button">
+            <span class="mode-badge">Chatbot Baseline</span>
+            <strong>Phản hồi nhanh, ít ngữ cảnh thao tác</strong>
+            <p>
+              Phù hợp để minh họa giới hạn của one-shot prompting khi bài toán có
+              nhiều bước.
+            </p>
+          </button>
+          <button class="mode-card" data-mode="agent" type="button">
+            <span class="mode-badge">ReAct Agent</span>
+            <strong>Hiển thị tiến trình suy luận và hành động</strong>
+            <p>
+              Phù hợp để demo cách agent tách nhỏ bài toán, gọi tool và tổng hợp
+              câu trả lời cuối cùng.
+            </p>
+          </button>
+        </div>
+      </section>
+
+      <main class="workspace-grid">
+        <section class="chat-panel panel-card">
+          <div class="chat-panel-header">
+            <div>
+              <span class="section-kicker">Hội thoại</span>
+              <h2>Phiên tư vấn đi cắm trại</h2>
+            </div>
+            <div class="header-badges">
+              <span class="soft-badge" id="active-mode-badge">Chatbot Baseline</span>
+              <span class="soft-badge" id="active-state-badge">Sẵn sàng</span>
+            </div>
+          </div>
+
+          <div class="prompt-chips" id="prompt-chips"></div>
+
+          <div class="chat-stream" id="chat-stream">
+            <div class="empty-state" id="empty-state">
+              <div class="empty-icon">AI</div>
+              <h3>Chưa có hội thoại nào</h3>
+              <p>
+                Hãy chọn một prompt mẫu hoặc nhập câu hỏi về lịch trình, địa
+                điểm, thời tiết, vật dụng hoặc phương án di chuyển cho chuyến cắm
+                trại gia đình.
+              </p>
+            </div>
+          </div>
+
+          <form class="composer" id="composer-form">
+            <label class="composer-label" for="prompt-input">
+              Nhập yêu cầu cho hệ thống
+            </label>
+            <div class="composer-row">
+              <textarea
+                id="prompt-input"
+                rows="1"
+                placeholder="Ví dụ: Gia đình tôi có 2 người lớn và 2 trẻ nhỏ, muốn cắm trại cuối tuần gần Hà Nội, cần chuẩn bị những gì?"
+              ></textarea>
+              <button class="primary-button" id="send-button" type="submit">
+                Gửi câu hỏi
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="insight-panel">
+          <section class="panel-card metrics-card">
+            <div class="section-heading compact">
+              <div>
+                <span class="section-kicker">Quan sát nhanh</span>
+                <h2>Metrics</h2>
+              </div>
+              <span class="status-pill" id="status-pill">Sẵn sàng</span>
+            </div>
+            <div class="metrics-grid" id="metrics-grid"></div>
+          </section>
+
+          <section class="panel-card trace-card">
+            <div class="section-heading compact">
+              <div>
+                <span class="section-kicker">Tiến trình thực thi</span>
+                <h2>Trace của agent</h2>
+              </div>
+              <span class="trace-mode-label" id="trace-mode-label">Ẩn trong Baseline</span>
+            </div>
+            <div class="trace-timeline" id="trace-timeline">
+              <div class="trace-empty">
+                <h3>Chưa có trace</h3>
+                <p>
+                  Khi chạy ở chế độ ReAct Agent, khu vực này sẽ hiển thị lần lượt
+                  Suy nghĩ, Hành động, Quan sát và Câu trả lời cuối cùng.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-card tool-card">
+            <div class="section-heading compact">
+              <div>
+                <span class="section-kicker">Khả năng mở rộng</span>
+                <h2>Tool calls</h2>
+              </div>
+            </div>
+            <div class="tool-list" id="tool-list">
+              <div class="tool-empty">
+                Chưa có tool nào được gọi trong phiên hiện tại.
+              </div>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

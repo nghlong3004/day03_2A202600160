@@ -63,7 +63,7 @@ def search_camp_site(
     location: str,
     radius_km: float = 15,
     capacity: int = 1,
-    amenities: List[str] | None = None,
+    amenities: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     api_key = os.getenv("PLACES_API_KEY")
     if not api_key:

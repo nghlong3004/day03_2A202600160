@@ -14,7 +14,10 @@ class BaselineChatbot:
         return (
             "You are a helpful chatbot assistant. "
             "Answer directly in Vietnamese. "
-            "Do not use tools and do not mention internal reasoning."
+            "Do not use tools and do not mention internal reasoning. "
+            "Format the answer as clean plain text only. "
+            "Do not use Markdown, do not use **, *, #, -, bullet lists, or code fences. "
+            "Use short section titles in plain text when needed."
         )
 
     def run(self, user_input: str) -> Dict[str, Any]:
@@ -26,3 +29,18 @@ class BaselineChatbot:
             latency_ms=result.get("latency_ms", 0),
         )
         return result
+
+    def run_with_metadata(self, user_input: str) -> Dict[str, Any]:
+        result = self.run(user_input)
+        usage = result.get("usage", {})
+        return {
+            "mode": "baseline",
+            "answer": result.get("content", ""),
+            "provider": result.get("provider", "unknown"),
+            "model": self.llm.model_name,
+            "latency_ms": result.get("latency_ms", 0),
+            "tool_calls": [],
+            "trace": [],
+            "usage": usage,
+            "steps": 1,
+        }

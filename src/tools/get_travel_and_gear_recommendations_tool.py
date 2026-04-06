@@ -1,10 +1,12 @@
-
 import math
 import os
 import re
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import requests
+
+from src.tools.location_tools import search_camp_site
+from src.tools.weather_tools import get_weather_forecast
 
 WEATHER_API_URL = "https://api.weatherapi.com/v1/forecast.json"
 PLACES_NEARBY_URL = "https://places.googleapis.com/v1/places:searchNearby"
@@ -139,7 +141,7 @@ def get_travel_and_gear_recommendations(
     date: str,
     radius_km: float = 15,
     capacity: int = 1,
-    amenities: List[str] | None = None,
+    amenities: Optional[List[str]] = None,
     group_type: str = "general",
 ) -> Dict[str, Any]:
     """
