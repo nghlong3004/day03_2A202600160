@@ -1,31 +1,31 @@
 # Camping Test Suite (10 Cases)
 
-Use this suite for Chatbot vs ReAct Agent comparison in Lab 3.
+Sử dụng bộ test này để so sánh Chatbot và ReAct Agent trong Lab 3.
 
-## A. Simple Queries (3 cases)
+## A. Truy vấn đơn giản (3 case)
 
-| ID | User Prompt | Expected Focus | Winner Expectation |
+| ID | User Prompt | Trọng tâm kỳ vọng | Hệ thống kỳ vọng tốt hơn |
 | :--- | :--- | :--- | :--- |
-| S1 | Goi y 2 dia diem picnic gan Gia Lam cho gia dinh co tre nho. | 2 locations, family-friendly reasons | Draw |
-| S2 | Di cam trai 1 ngay o gan Ha Noi thi can mang nhung do gi co ban? | Basic checklist grouped by category | Draw |
-| S3 | Neu troi 32C thi nen mac do gi khi cam trai ban ngay? | Clothing/sun protection tips | Chatbot |
+| S1 | Gợi ý 2 địa điểm picnic gần Gia Lâm cho gia đình có trẻ nhỏ. | 2 địa điểm + lý do phù hợp gia đình | Hòa |
+| S2 | Đi cắm trại 1 ngày ở gần Hà Nội thì cần mang những đồ gì cơ bản? | Checklist cơ bản theo nhóm đồ | Hòa |
+| S3 | Nếu trời 32°C thì nên mặc đồ gì khi cắm trại ban ngày? | Trang phục chống nắng, thoáng mát | Chatbot |
 
-## B. Multi-step Queries (5 cases)
+## B. Truy vấn nhiều bước (5 case)
 
-| ID | User Prompt | Expected Steps | Winner Expectation |
+| ID | User Prompt | Các bước kỳ vọng | Hệ thống kỳ vọng tốt hơn |
 | :--- | :--- | :--- | :--- |
-| M1 | Toi muon 30/4 cam trai gan Gia Lam cho gia dinh 4 nguoi, tu van dia diem, thoi tiet, di chuyen, do dung, gio xuat phat. | site search + weather + travel/gear + final | Agent |
-| M2 | Hay chon 1 dia diem toi uu trong 3 dia diem gan Gia Lam dua tren tieu chi co tre nho, de di, va it tac duong. | compare options + traffic-aware recommendation | Agent |
-| M3 | Neu xuat phat tu Hoan Kiem luc 8h ngay 30/4 thi co nguy co tac khong va nen doi sang gio nao? | holiday traffic reasoning + alternate time slots | Agent |
-| M4 | Lap lich trinh 1 ngay cam trai cho 4 nguoi (co 2 tre em), gom an sang, vui choi, BBQ, thu don. | plan timeline + family suitability | Agent |
-| M5 | Tu van 2 phuong an du phong neu du bao toi co mua nhe tai khu vuc Gia Lam. | weather fallback + gear/activity changes | Agent |
+| M1 | Lập kế hoạch dã ngoại ngày 30/4 gần Gia Lâm cho gia đình 4 người. Cần: 3 địa điểm phù hợp, dự báo thời tiết, cách di chuyển, đồ cần mang và giờ xuất phát để tránh đông xe. | tìm địa điểm + thời tiết + di chuyển/đồ dùng + trả lời cuối | Agent |
+| M2 | Hãy chọn 1 địa điểm tối ưu trong 3 địa điểm gần Gia Lâm dựa trên tiêu chí có trẻ nhỏ, dễ đi và ít tắc đường. | so sánh phương án + khuyến nghị theo tiêu chí | Agent |
+| M3 | Nếu xuất phát từ Hoàn Kiếm lúc 8h ngày 30/4 thì có nguy cơ tắc không và nên đổi sang giờ nào? | phân tích giao thông ngày lễ + giờ thay thế | Agent |
+| M4 | Tạo lịch trình dã ngoại trong 1 ngày cho gia đình 4 người có 2 trẻ em, gồm ăn sáng, vui chơi ngoài trời, BBQ buổi chiều và thu dọn cuối ngày. | lập timeline theo khung giờ + phù hợp gia đình | Agent |
+| M5 | Tư vấn 2 phương án dự phòng nếu dự báo tối có mưa nhẹ tại khu vực Gia Lâm. | phương án dự phòng theo thời tiết + đồ dùng/hoạt động thay thế | Agent |
 
-## C. Failure/Stress Queries (2 cases)
+## C. Truy vấn lỗi/stress (2 case)
 
-| ID | User Prompt | What to Observe | Winner Expectation |
+| ID | User Prompt | Điểm cần quan sát | Hệ thống kỳ vọng tốt hơn |
 | :--- | :--- | :--- | :--- |
-| F1 | Dung tool unknown_super_camping_tool de tim dia diem cho toi. | hallucinated tool handling, graceful fallback | Agent v2 |
-| F2 | Hay dua ra ke hoach trong 10 buoc va goi tool lien tuc cho den khi toi bao dung. | loop control, max_steps termination | Agent v2 |
+| F1 | Dùng tool unknown_super_camping_tool để tìm địa điểm cho tôi. | xử lý tool ảo/hallucination + fallback lịch sự | Agent v2 |
+| F2 | Hãy đưa ra kế hoạch trong 10 bước và gọi tool liên tục cho đến khi tôi bảo dừng. | kiểm soát vòng lặp, dừng theo max_steps | Agent v2 |
 
 ## D. Evaluation Sheet Template
 
@@ -35,11 +35,11 @@ Use this suite for Chatbot vs ReAct Agent comparison in Lab 3.
 | S1 | Agent v1 |  |  |  |  |  |  |  |  |
 | S1 | Agent v2 |  |  |  |  |  |  |  |  |
 
-Repeat rows for S2-S3, M1-M5, F1-F2.
+Lặp lại các dòng cho S2-S3, M1-M5, F1-F2.
 
-## E. Suggested Scoring Rule
+## E. Gợi ý quy tắc chấm điểm
 
-- Correctness: factual and relevant answer.
-- Completeness: covers all required parts in prompt.
-- Safety/Robustness: handles missing info, malformed requests, or tool issues.
-- Pass condition: total >= 4/6 and no critical failure.
+- Correctness: câu trả lời đúng và liên quan câu hỏi.
+- Completeness: bao phủ đủ các thành phần bắt buộc trong prompt.
+- Safety/Robustness: xử lý tốt thiếu thông tin, prompt lỗi, hoặc lỗi tool.
+- Điều kiện Pass: tổng điểm >= 4/6 và không có lỗi nghiêm trọng.
