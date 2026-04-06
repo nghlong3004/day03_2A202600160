@@ -1,9 +1,15 @@
-import os
 import re
+import sys
 import json
 from typing import List, Dict, Any
-from src.core.llm_provider import LLMProvider
-from src.telemetry.logger import logger
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent
+
+sys.path.insert(0, str(project_root))
+
+from core.llm_provider import LLMProvider
+from telemetry.logger import logger
 
 class ReActAgent:
     """

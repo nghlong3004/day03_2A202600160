@@ -1,14 +1,20 @@
 import os
+import sys
 import time
-import google.generativeai as genai
+
+from google import genai
 from typing import Dict, Any, Optional, Generator
-from src.core.llm_provider import LLMProvider
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent
+
+sys.path.insert(0, str(project_root))
+from core.llm_provider import LLMProvider
 
 class GeminiProvider(LLMProvider):
-    def __init__(self, model_name: str = "gemini-1.5-flash", api_key: Optional[str] = None):
+    def __init__(self, model_name: str, api_key: Optional[str] = None):
         super().__init__(model_name, api_key)
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(model_name)
+        self.client = genai.Client(api_key=api_key)
 
     def generate(self, prompt: str, system_prompt: Optional[str] = None) -> Dict[str, Any]:
         start_time = time.time()
@@ -19,7 +25,10 @@ class GeminiProvider(LLMProvider):
         if system_prompt:
             full_prompt = f"System: {system_prompt}\n\nUser: {prompt}"
 
-        response = self.model.generate_content(full_prompt)
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=full_prompt
+        )
 
         end_time = time.time()
         latency_ms = int((end_time - start_time) * 1000)
@@ -44,6 +53,8 @@ class GeminiProvider(LLMProvider):
         if system_prompt:
             full_prompt = f"System: {system_prompt}\n\nUser: {prompt}"
 
-        response = self.model.generate_content(full_prompt, stream=True)
-        for chunk in response:
-            yield chunk.text
+        for chunk in self.client.models.generate_content_stream(
+            model=self.model_name,
+            contents=full_prompt
+        ):
+            yield chunk.candidates[0].content.parts[0].text
