@@ -24,12 +24,12 @@ src/
 │   ├── llm_provider.py       # Interface gốc định nghĩa cấu trúc chuẩn cho mọi LLM
 │   ├── provider.py           # Provider có sẵn (cũng dùng cho Grok, OpenRouter...)
 │   └── gemini_provider.py    # Provider rẽ nhánh tương thích riêng SDK của Google
-├── tools/
-│   └── camping_tools.py      # Nơi định nghĩa các công cụ phục vụ luồng cắm trại
+├── tools/                    # Nơi định nghĩa các công cụ phục vụ luồng
+│   └── location_tools.py
+│   └── weather_tools.py          
 ├── agent/
 │   ├── agent.py              # Lõi điều khiển vòng lặp ReAct (Thought-Action-Observation)
 │   └── camping_agent.py      # Module chứa system prompt hướng dẫn Agent
-└── telegram_bot.py           # Giao diện đóng gói thành Bot để chat với người dùng
 ```
 
 Theo cấu trúc này, công cụ (Tool) đóng vai trò trung tâm. Mỗi công cụ là một hàm Python xử lý logic, đi kèm phần JSON mô tả để hướng dẫn AI khi nào thì nên dùng.
